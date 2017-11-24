@@ -1,12 +1,16 @@
 
 import tensorflow as tf
 
-def weight_variable(shape, name):
+def weight_variable(shape, name, initializer=None):
   initializer = tf.truncated_normal_initializer(stddev=0.1)
+  if initializer:
+    initializer = initializer
   return tf.get_variable(shape=shape, initializer=initializer, name=name)
 
-def bias_variable(shape, name):
+def bias_variable(shape, name, initializer=None):
   initializer = tf.constant_initializer(0.)
+  if initializer:
+    initializer = initializer
   return tf.get_variable(shape=shape, initializer=initializer, name=name)
 
 class GAN(object):
