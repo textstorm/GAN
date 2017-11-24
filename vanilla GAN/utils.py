@@ -187,3 +187,10 @@ def save_images(images, size, image_path):
 
   assert len(images) <= size[0] * size[1], "number of images should be equal or less than size[0] * size[1] {}".format(len(images))
   return imsave(images, size, image_path)
+
+def get_config_proto(log_device_placement=False, allow_soft_placement=True):
+  config_proto = tf.ConfigProto(
+      log_device_placement=log_device_placement,
+      allow_soft_placement=allow_soft_placement)
+  config_proto.gpu_options.allow_growth = True
+  return config_proto
