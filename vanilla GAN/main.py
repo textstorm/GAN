@@ -8,30 +8,32 @@ import numpy as np
 import os
 
 def main(args):
-  if not os.path.exists("../saves"):
-    os.mkdir("../saves")
   mnist = utils.read_data_sets(args.train_dir)
-  config = tf.ConfigProto(allow_soft_placement=True)
-  config.gpu_options.allow_growth = True
+  config_proto = utils.get_config_proto()
 
   with tf.device('/gpu:0'):
-    session = tf.Session(config=config)
+    if not os.path.exists("../saves"):
+      os.mkdir("../saves")
+    sess = tf.Session(config=config_proto)
     model = gan.GAN(args, session)
     total_batch = mnist.train.num_examples // args.batch_size
 
     for epoch in range(1, args.nb_epochs + 1):
-      for i in range(total_batch):
-        global_step = session.run(model.global_step)
+      for i in range(1, total_batch + 1):
+        global_step = sess.run(model.global_step)
         x_batch, _ = mnist.train.next_batch(args.batch_size)
         noise = np.random.normal(size=[args.batch_size, args.noise_dim])
 
-        D_loss = model.d_batch_fit(x_batch, noise, args.learning_rate)
-        G_loss = model.g_batch_fit(noise, args.learning_rate)
+        D_loss = model.d_batch_fit(x_batch, noise)
+        G_loss = model.g_batch_fit(noise)
 
-        if i % 100 == 0:
+        if i % args.log_period == 0:
           print "Epoch: ", '%02d' % epoch, "Batch: ", '%04d' % i, "D_loss: ", '%9.9f' % D_loss, "G_loss: ", '%9.9f' % G_loss
 
-      if epoch % 10 == 0:
+      if epoch % 50 == 0:
+        print "- " * 50
+
+      if epoch % args.save_period  == 0:
         if not os.path.exists("../saves/imgs"):
           os.mkdir("../saves/imgs")
         z = np.random.normal(size=[64, args.noise_dim])
