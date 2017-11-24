@@ -15,18 +15,18 @@ def bias_variable(shape, name, initializer=None):
 
 class GAN(object):
   def __init__(self, args, session):
-    self._input_dim = args.input_dim
-    self._noise_dim = args.noise_dim
-    self._g_h1_dim = args.g_h1_dim
-    self._g_h2_dim = args.g_h2_dim
-    self._d_h1_dim = args.d_h1_dim
-    self._d_h2_dim = args.d_h2_dim
-    self._max_grad_norm = args.max_grad_norm
-    self._sess = session
+    self.input_dim = args.input_dim
+    self.noise_dim = args.noise_dim
+    self.g_h1_dim = args.g_h1_dim
+    self.g_h2_dim = args.g_h2_dim
+    self.d_h1_dim = args.d_h1_dim
+    self.d_h2_dim = args.d_h2_dim
+    self.max_grad_norm = args.max_grad_norm
+    self.sess = session
 
     self._build_placeholder()
 
-    self._optimizer = tf.train.AdamOptimizer(self.lr)
+    self.optimizer = tf.train.AdamOptimizer(self.lr)
     self.global_step = tf.get_variable('global_step', [], 'int32', tf.constant_initializer(0), trainable=False)
     
     self._build_forward()
@@ -34,12 +34,12 @@ class GAN(object):
     self._build_train()
 
     init_op = tf.global_variables_initializer()
-    self._sess.run(init_op)
+    self.sess.run(init_op)
 
   def _build_placeholder(self):
     with tf.name_scope("Data"):
-      self.x_images = tf.placeholder(tf.float32, [None, self._input_dim])
-      self.noise = tf.placeholder(tf.float32, [None, self._noise_dim])
+      self.x_images = tf.placeholder(tf.float32, [None, self.input_dim])
+      self.noise = tf.placeholder(tf.float32, [None, self.noise_dim])
     with tf.name_scope("Lr"):
       self.lr = tf.placeholder(tf.float32, [], name="learning_rate")
 
@@ -66,12 +66,12 @@ class GAN(object):
 
   def _build_train(self):
     with tf.name_scope("Train"):
-      d_grads_and_vars = self._optimizer.compute_gradients(self.D_loss, var_list=self.d_var_list)
-      d_grads_and_vars = [(tf.clip_by_norm(g, self._max_grad_norm), v) for g, v in d_grads_and_vars]
-      g_grads_and_vars = self._optimizer.compute_gradients(self.G_loss, var_list=self.g_var_list)
-      g_grads_and_vars = [(tf.clip_by_norm(g, self._max_grad_norm), v) for g, v in g_grads_and_vars]
-      self.train_op_d = self._optimizer.apply_gradients(d_grads_and_vars, global_step=self.global_step)
-      self.train_op_g = self._optimizer.apply_gradients(g_grads_and_vars, global_step=self.global_step)
+      d_grads_and_vars = self.optimizer.compute_gradients(self.D_loss, var_list=self.d_var_list)
+      d_grads_and_vars = [(tf.clip_by_norm(g, self.max_grad_norm), v) for g, v in d_grads_and_vars]
+      g_grads_and_vars = self.optimizer.compute_gradients(self.G_loss, var_list=self.g_var_list)
+      g_grads_and_vars = [(tf.clip_by_norm(g, self.max_grad_norm), v) for g, v in g_grads_and_vars]
+      self.train_op_d = self.optimizer.apply_gradients(d_grads_and_vars, global_step=self.global_step)
+      self.train_op_g = self.optimizer.apply_gradients(g_grads_and_vars, global_step=self.global_step)
 
   def d_batch_fit(self, x_images, noise, lr):
     feed_dict = {}
@@ -79,7 +79,7 @@ class GAN(object):
     feed_dict[self.noise] = noise
     feed_dict[self.lr] = lr
     
-    loss, _ = self._sess.run([self.D_loss, self.train_op_d], feed_dict=feed_dict)
+    loss, _ = self.sess.run([self.D_loss, self.train_op_d], feed_dict=feed_dict)
 
     return loss
 
@@ -88,16 +88,16 @@ class GAN(object):
     feed_dict[self.noise] = noise
     feed_dict[self.lr] = lr
 
-    loss, _ = self._sess.run([self.G_loss, self.train_op_g], feed_dict=feed_dict)
+    loss, _ = self.sess.run([self.G_loss, self.train_op_g], feed_dict=feed_dict)
 
     return loss
 
   def generator(self, noise):
-    g_w1 = weight_variable([self._noise_dim, self._g_h1_dim], name="W1_G")
-    g_b1 = bias_variable([self._g_h1_dim], name="b1_G")
+    g_w1 = weight_variable([self.noise_dim, self.g_h1_dim], name="W1_G")
+    g_b1 = bias_variable([self.g_h1_dim], name="b1_G")
     g_h1 = tf.nn.relu(tf.matmul(noise, g_w1) + g_b1)
-    g_w2 = weight_variable([self._g_h1_dim, self._input_dim], name="W2_G")
-    g_b2 = bias_variable([self._input_dim], name="b2_G")
+    g_w2 = weight_variable([self.g_h1_dim, self.input_dim], name="W2_G")
+    g_b2 = bias_variable([self.input_dim], name="b2_G")
     g_h2 = tf.nn.sigmoid(tf.matmul(g_h1, g_w2) + g_b2)
 
     var_list = [g_w1, g_w2, g_b1, g_b2]
@@ -105,10 +105,10 @@ class GAN(object):
     return g_h2, var_list
 
   def discriminator(self, x): 
-    d_w1 = weight_variable([self._input_dim, self._d_h1_dim], name="W1_D")
-    d_b1 = bias_variable([self._d_h1_dim], name="b1_D")
+    d_w1 = weight_variable([self.input_dim, self.d_h1_dim], name="W1_D")
+    d_b1 = bias_variable([self.d_h1_dim], name="b1_D")
     d_h1 = tf.nn.relu(tf.matmul(x, d_w1) + d_b1)
-    d_w2 = weight_variable([self._d_h1_dim, 1], name="W2_D")
+    d_w2 = weight_variable([self.d_h1_dim, 1], name="W2_D")
     d_b2 = bias_variable([1], name="b2_D")
     d_l2 = tf.matmul(d_h1, d_w2) + d_b2
     var_list = [d_w1, d_w2, d_b1, d_b2]
@@ -118,4 +118,4 @@ class GAN(object):
   def generate(self, noise):
     feed_dict = {self.noise: noise}
 
-    return self._sess.run(self.G, feed_dict=feed_dict)
+    return self.sess.run(self.G, feed_dict=feed_dict)
