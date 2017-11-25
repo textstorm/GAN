@@ -98,8 +98,8 @@ class GAN(object):
 
   def generator(self, noise):
     x = noise
-    x = tf.layers.dense(x, 256, activation=tf.nn.relu, name='g_layer1')
-    x = tf.layers.dense(x, 256, activation=tf.nn.relu, name='g_layer2')
+    x = tf.layers.dense(x, self.g_h1_dim, activation=tf.nn.relu, name='g_layer1')
+    #x = tf.layers.dense(x, 256, activation=tf.nn.relu, name='g_layer2')
     x = tf.layers.dense(x, self.input_dim, name='g_layer3')
     x = tf.nn.sigmoid(x)
     tvars = self.trainable_vars('generator')
@@ -107,8 +107,8 @@ class GAN(object):
     return x, tvars
 
   def discriminator(self, x):
-    x = tf.layers.dense(x, 256, activation=tf.nn.relu, name='d_layer1')
-    x = tf.layers.dense(x, 64, activation=tf.nn.relu, name='d_layer2')
+    x = tf.layers.dense(x, self.d_h1_dim, activation=tf.nn.relu, name='d_layer1')
+    #x = tf.layers.dense(x, 64, activation=tf.nn.relu, name='d_layer2')
     x = tf.layers.dense(x, 1, name='d_layer3')
     tvars = self.trainable_vars('discriminator')
     print tvars
