@@ -4,6 +4,7 @@ import gzip
 import numpy as np
 import collections
 import scipy.misc
+import tensorflow as tf
 
 Dataset = collections.namedtuple('Dataset', ['data', 'target'])
 Datasets = collections.namedtuple('Datasets', ['train', 'validation', 'test'])
