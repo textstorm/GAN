@@ -13,11 +13,11 @@ def get_args():
 
   parser.add_argument('--noise_dim', type=int, default=100, help='The input dims of generator')
   parser.add_argument('--input_dim', type=int, default=784, help='Dimension of input data')
-  parser.add_argument('--g_h1_dim', type=int, default=150, help='Dims of generator hidden layer1')
+  parser.add_argument('--g_h1_dim', type=int, default=300, help='Dims of generator hidden layer1')
   parser.add_argument('--g_h2_dim', type=int, default=300, help='Dims of generator hidden layer2')
   parser.add_argument('--d_h1_dim', type=int, default=300, help='Dims of discriminator hidden layer1')
-  parser.add_argument('--d_h2_dim', type=int, default=150, help='Dims of discriminator hidden layer2')
-  parser.add_argument('--keep_prob', type=float, default=0.5, help='keep prob in dropout')
+  parser.add_argument('--d_h2_dim', type=int, default=300, help='Dims of discriminator hidden layer2')
+  parser.add_argument('--keep_prob', type=float, default=1., help='keep prob in dropout')
 
   parser.add_argument('--batch_size', type=int, default=128, help='Example numbers every batch')
   parser.add_argument('--nb_epochs', type=int, default=100, help='Number of epoch')
