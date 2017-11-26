@@ -29,7 +29,7 @@ class GAN(object):
 
     self.add_placeholder()
 
-    self.optimizer = tf.train.AdamOptimizer(self.learning_rate)
+    self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
     self.global_step = tf.Variable(0, trainable=False)
     
     self._build_graph()
@@ -54,11 +54,11 @@ class GAN(object):
       self.D_fake, _ = self.discriminator(self.G)
   
   def _build_loss(self):
-    with tf.name_scope("Loss"):
+    with tf.name_scope("loss"):
       D_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
-                                    logits=self.D_real, labels=tf.ones_like(self.D_real)))
+                                   logits=self.D_real, labels=tf.ones_like(self.D_real)))
       D_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
-                                    logits=self.D_fake, labels=tf.zeros_like(self.D_fake)))
+                                   logits=self.D_fake, labels=tf.zeros_like(self.D_fake)))
       G_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
                               logits=self.D_fake, labels=tf.ones_like(self.D_fake)))
 
@@ -108,11 +108,11 @@ class GAN(object):
     return x, tvars
 
   def discriminator(self, x):
-    # x = tf.layers.dense(x, self.d_h1_dim, activation=tf.nn.relu, name='d_layer1')
-    # x = tf.nn.dropout(x, keep_prob=self.keep_prob)
+    x = tf.layers.dense(x, self.d_h1_dim, activation=tf.nn.relu, name='d_layer1')
+    x = tf.nn.dropout(x, keep_prob=self.keep_prob)
     x = tf.layers.dense(x, self.d_h2_dim, activation=tf.nn.relu, name='d_layer2')
-    #x = tf.nn.dropout(x, keep_prob=self.keep_prob)
-    x = tf.layers.dense(x, 1, name='d_layer3')
+    x = tf.nn.dropout(x, keep_prob=self.keep_prob)
+    x = tf.layers.dense(x, 1, activation=None, name='d_layer3')
     tvars = self.trainable_vars('discriminator')
     print tvars
     return x, tvars
