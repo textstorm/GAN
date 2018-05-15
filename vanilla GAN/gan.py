@@ -85,18 +85,6 @@ class GAN(object):
     loss, _ = self.sess.run([self.G_loss, self.train_op_g], feed_dict=feed_dict)
     return loss
 
-  def generator_(self, noise):
-    g_w1 = weight_variable([self.noise_dim, self.g_h1_dim], name="W1_G")
-    g_b1 = bias_variable([self.g_h1_dim], name="b1_G")
-    g_h1 = tf.nn.relu(tf.matmul(noise, g_w1) + g_b1)
-    g_w2 = weight_variable([self.g_h1_dim, self.input_dim], name="W2_G")
-    g_b2 = bias_variable([self.input_dim], name="b2_G")
-    g_h2 = tf.nn.sigmoid(tf.matmul(g_h1, g_w2) + g_b2)
-
-    var_list = [g_w1, g_w2, g_b1, g_b2]
-
-    return g_h2, var_list
-
   def generator(self, noise):
     x = noise
     x = tf.layers.dense(x, self.g_h1_dim, activation=tf.nn.relu, name='g_layer1')
@@ -116,17 +104,6 @@ class GAN(object):
     tvars = self.trainable_vars('discriminator')
     print tvars
     return x, tvars
-
-  def discriminator_(self, x): 
-    d_w1 = weight_variable([self.input_dim, self.d_h1_dim], name="W1_D")
-    d_b1 = bias_variable([self.d_h1_dim], name="b1_D")
-    d_h1 = tf.nn.relu(tf.matmul(x, d_w1) + d_b1)
-    d_w2 = weight_variable([self.d_h1_dim, 1], name="W2_D")
-    d_b2 = bias_variable([1], name="b2_D")
-    d_l2 = tf.matmul(d_h1, d_w2) + d_b2
-    var_list = [d_w1, d_w2, d_b1, d_b2]
-
-    return d_l2, var_list
 
   def generate(self, noise):
     feed_dict = {self.noise: noise}
